@@ -7,13 +7,13 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Route.customerRouting() {
-    route("/customer") {
+fun Route.<<CLASSNAME>>Routing() {
+    route("/<<CLASSNAME>>") {
         get {
-            if (customerStorage.isNotEmpty()) {
-                call.respond(customerStorage)
+            if (<<CLASSNAME>>Storage.isNotEmpty()) {
+                call.respond(<<CLASSNAME>>Storage)
             } else {
-                call.respondText("No customers found", status = HttpStatusCode.OK)
+                call.respondText("No <<CLASSNAME>>s found", status = HttpStatusCode.OK)
             }
         }
         get("{id?}") {
@@ -21,12 +21,12 @@ fun Route.customerRouting() {
                 "Missing id",
                 status = HttpStatusCode.BadRequest
             )
-            val customer =
-                customerStorage.find { it.id == id } ?: return@get call.respondText(
-                    "No customer with id $id",
+            val <<CLASSNAME>> =
+                <<CLASSNAME>>Storage.find { it.id == id } ?: return@get call.respondText(
+                    "No <<CLASSNAME>> with id $id",
                     status = HttpStatusCode.NotFound
                 )
-            call.respond(customer)
+            call.respond(<<CLASSNAME>>)
         }
     }
 }

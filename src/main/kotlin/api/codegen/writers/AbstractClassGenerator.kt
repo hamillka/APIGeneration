@@ -4,7 +4,6 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import kotlin.io.path.createDirectory
 
 abstract class AbstractClassGenerator(className: String, pathToSave: String) {
     private val _className: String = className
@@ -50,7 +49,7 @@ abstract class AbstractClassGenerator(className: String, pathToSave: String) {
     protected fun getDestinationFile(pathToSave: String): File {
         val dirPath: Path = Paths.get(pathToSave, _path)
         if (!Files.isDirectory(dirPath)) {
-            dirPath.createDirectory()
+            dirPath.toFile().mkdirs()
         }
         return File("$dirPath/$_className.kt")
     }
