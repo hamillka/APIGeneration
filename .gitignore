@@ -10,6 +10,7 @@ build/
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
+.idea/misc.xml
 *.iws
 *.iml
 *.ipr
@@ -41,3 +42,9 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+/src/gradle/wrapper/gradle-wrapper.jar
+/src/gradle/wrapper/gradle-wrapper.properties
+/.idea/
+/.gradle/
+/.idea/
+/build/
