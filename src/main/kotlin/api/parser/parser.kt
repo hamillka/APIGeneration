@@ -95,8 +95,7 @@ object NestedObjectSerializer : KSerializer<NestedObject> {
 }
 
 
-fun main() {
-    /*
+fun main() {/*
     TESTS:
         "users": [{"id":15,"name":"Andrey","Country": "Russia"}, {"id": 22, "name": "Mikhail", "age": 51, "address":  {"st.": "Lenina", "dom":  "55A"}}]
         "users": [{"id":15,"name":"Andrey","Country": "Russia"}, {"id": 22, "name": "Mikhail", "age": 51, "address":  {"st.": "Lenina", "dom":  "55A"}}, {"id": 58, "vuz": "BMSTU"}]
@@ -121,16 +120,16 @@ fun main() {
         val idAttrib = GenericAttribute(name = "id", type = "Int", value = obj.id)
         genObj.addAttribute(idAttrib)
 
-        for (element in obj.details.keys) {
-            var type: String? = obj.details[element]!!::class.simpleName
+//        for (element in obj.details.keys) {
+        for (entry in obj.details.entries) {
+            var type: String? = entry.value::class.simpleName
 
             when (type) {
                 "JsonObject" -> {
 //                    val nestedObj = NestedObject(element, obj.details[element] as JsonObject)
-                    val str = element + obj.details[element].toString()
+                    val str = entry.key + entry.value.toString()
                     val nestedObj = Json.decodeFromString(
-                        NestedObjectSerializer,
-                        string = str
+                        NestedObjectSerializer, string = str
                     ) // string = nestedObj.details.toString()
                     val nestedGenObj = GenericObject(nestedObj.className)
                     for (elem in nestedObj.details.keys) {
@@ -144,17 +143,15 @@ fun main() {
                     }
                     genObj.addAttribute(
                         GenericAttribute(
-                            name = nestedObj.className,
-                            type = "GenericObject",
-                            value = nestedGenObj
+                            name = nestedObj.className, type = "GenericObject", value = nestedGenObj
                         )
                     )
                 }
 
-                else -> type = checkIntOrString(obj.details[element].toString())
+                else -> type = checkIntOrString(entry.value.toString())
             }
 
-            genObj.addAttribute(GenericAttribute(name = element, type = type, value = obj.details[element]))
+            genObj.addAttribute(GenericAttribute(name = entry.key, type = type, value = entry.value))
         }
         genObjs.add(genObj)
     }
