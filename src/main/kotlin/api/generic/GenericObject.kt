@@ -44,4 +44,40 @@ class GenericObject(className: String) {
     fun getAttributes() : MutableList<GenericAttribute> {
         return _attributes
     }
+
+    fun ToStringDataClass(isSerializable: Boolean = true): String {
+        var res = ""
+        if (isSerializable) res += "@Serializable\n"
+        res += "data class $_className("
+        _attributes.forEach {
+            res += "${it.ToString()}, "
+        }
+        res += ")\n\n"
+        _attributes.forEach {
+            if (it.type == "GenericObject") {
+                res += (it.value as GenericObject).ToStringDataClass()
+            }
+        }
+        return res
+    }
+
+    fun ToString(): String {
+        var res = "$_className("
+        _attributes.forEach {
+            when (it.type) {
+                "GenericObject" -> { res += (it.value as GenericObject).ToString() }
+                "String" -> { res += "\"${it.value}\"" }
+                "String?" -> {
+                    when (it.value) {
+                        null -> { res += "null" }
+                        else -> { res += "\"${it.value}\"" }
+                    }
+                }
+                else -> { res += "${it.value}" }
+            }
+            res += ", "
+        }
+        res += ")"
+        return res
+    }
 }

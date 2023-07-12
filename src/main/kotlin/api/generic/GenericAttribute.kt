@@ -21,4 +21,11 @@ class GenericAttribute(name: String, type: String, value: Any?) {
         _type = type
         _value = value
     }
+
+    fun ToString(): String {
+        when(_type) {
+            "GenericObject" -> { return "val $_name: ${(_value as GenericObject).className}" }
+            else -> { return "val $_name: $_type" }
+        }
+    }
 }
