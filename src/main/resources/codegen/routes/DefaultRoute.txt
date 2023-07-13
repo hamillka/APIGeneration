@@ -22,7 +22,7 @@ fun Route.<<CLASSNAME>>Routing() {
                 status = HttpStatusCode.BadRequest
             )
             val <<CLASSNAME>> =
-                <<CLASSNAME>>Storage.find { it.id == id } ?: return@get call.respondText(
+                <<CLASSNAME>>Storage.find { it.id.toString() == id } ?: return@get call.respondText(
                     "No <<CLASSNAME>> with id $id",
                     status = HttpStatusCode.NotFound
                 )
