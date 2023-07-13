@@ -1,0 +1,23 @@
+"users": [
+  {
+    "id": 15,
+    "name": "Andrey",
+    "address": {
+      "country": "Russia",
+      "city": "moscow",
+      "rayon": "SVAO",
+      "dom": 45
+    }
+  },
+  {
+    "id": 22,
+    "name": "Mikhail",
+    "address": {
+      "country": "German",
+      "city": "berlin",
+      "rayon": "nikht",
+      "dom": 23
+    },
+    "age": 51
+  }
+]

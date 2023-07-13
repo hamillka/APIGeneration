@@ -89,8 +89,8 @@ class Parser(str: String) {
                 for (attr in (sampleAttribute.value as GenericObject).getAttributes())
                     (resultAttribute.value as? GenericObject)?.addAttribute(attr)
 
-                (resultAttribute.value as? GenericObject)?.addAttribute(
-                    GenericAttribute(name = "copied", type = "Boolean", value = true))
+//                (resultAttribute.value as? GenericObject)?.addAttribute(
+//                    GenericAttribute(name = "copied", type = "Boolean", value = true))
 //            resultAttribute.value = GenericObject("Empty")
 //            ВМЕСТО ПЯТИ СТРОК ВЫШЕ (КОПИРОВАНИЕ) МОЖНО СОЗДАТЬ ПУСТОЙ GENERIC OBJECT ???
             }

@@ -66,13 +66,6 @@ class GenericObject(className: String) {
         _attributes.forEach {
             when (it.type) {
                 "GenericObject" -> { res += (it.value as GenericObject).ToString() }
-                "String" -> { res += "\"${it.value}\"" }
-                "String?" -> {
-                    when (it.value) {
-                        null -> { res += "null" }
-                        else -> { res += "\"${it.value}\"" }
-                    }
-                }
                 else -> { res += "${it.value}" }
             }
             res += ", "
