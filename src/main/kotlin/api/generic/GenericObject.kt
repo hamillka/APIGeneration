@@ -1,7 +1,7 @@
 package api.generic
 
 class GenericObject(className: String) {
-    private var _attributes: MutableList<GenericAttribute> = mutableListOf();
+    private var _attributes: MutableList<GenericAttribute> = mutableListOf()
     private var _className: String = className
     val className
         get() = _className
