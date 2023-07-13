@@ -12,12 +12,12 @@
   {
     "id": 22,
     "name": "Mikhail",
+    "age": 51,
     "address": {
       "country": "German",
       "city": "berlin",
       "rayon": "nikht",
       "dom": 23
-    },
-    "age": 51
+    }
   }
 ]

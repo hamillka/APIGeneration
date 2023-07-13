@@ -64,12 +64,14 @@ class GenericObject(className: String) {
     fun ToString(): String {
         var res = "$_className("
         _attributes.forEach {
+            res += "${it.name}="
             when (it.type) {
                 "GenericObject" -> { res += (it.value as GenericObject).ToString() }
                 else -> { res += "${it.value}" }
             }
             res += ", "
         }
+        if (_attributes.isNotEmpty()) res = res.slice(0..(res.length - 3))
         res += ")"
         return res
     }
