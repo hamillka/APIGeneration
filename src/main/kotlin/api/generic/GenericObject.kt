@@ -45,29 +45,40 @@ class GenericObject(className: String) {
         return _attributes
     }
 
-    fun ToStringDataClass(isSerializable: Boolean = true): String {
+    fun toStringDataClass(isSerializable: Boolean = true): String {
         var res = ""
         if (isSerializable) res += "@Serializable\n"
         res += "data class $_className("
         _attributes.forEach {
-            res += "${it.ToString()}, "
+            res += "${it.toString()}, "
         }
+        if (_attributes.isNotEmpty()) res = res.slice(0..(res.length - 3))
         res += ")\n\n"
         _attributes.forEach {
             if (it.type == "GenericObject") {
-                res += (it.value as GenericObject).ToStringDataClass()
+                res += (it.value as GenericObject).toStringDataClass()
             }
         }
         return res
     }
 
-    fun ToString(): String {
+    override fun toString(): String {
         var res = "$_className("
         _attributes.forEach {
             res += "${it.name}="
-            when (it.type) {
-                "GenericObject" -> { res += (it.value as GenericObject).ToString() }
-                else -> { res += "${it.value}" }
+            if (it is GenericAttributeList) {
+                res += "listOf("
+                (it.value as MutableList<Any?>).forEach { it2 ->
+                    res += "${it2.toString()}, "
+                }
+                if ((it.value as MutableList<Any?>).isNotEmpty()) res = res.slice(0..(res.length - 3))
+                res += ")"
+            }
+            else {
+                when (it.type) {
+                    "GenericObject" -> { res += (it.value as GenericObject).toString() }
+                    else -> { res += "${it.value}" }
+                }
             }
             res += ", "
         }

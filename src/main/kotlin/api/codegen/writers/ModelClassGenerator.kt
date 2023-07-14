@@ -21,13 +21,13 @@ class ModelClassGenerator(pathToSave: String, objects: MutableList<GenericObject
     }
 
     private fun getDataClasses(): String {
-        return _objects[0].ToStringDataClass()
+        return _objects[0].toStringDataClass()
     }
 
     private fun getStorage(): String {
         var res: String = "val ${_objects[0].className.lowercase()}Storage = listOf(\n"
         _objects.forEach {
-            res += it.ToString() + ",\n"
+            res += it.toString() + ",\n"
         }
         res += ")\n"
         return res
