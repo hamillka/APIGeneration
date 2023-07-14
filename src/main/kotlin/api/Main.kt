@@ -10,4 +10,7 @@ fun main() {
     val codegen = KTORCodeGen("./test")
     if (jsonStr != null) codegen.generateCode(Parser(jsonStr.toString()).run())
     else throw NullPointerException("Unexisting file")
+
+//    val jsonStr = r.readFile("src/main/resources/tests/file1.json")
+//    printGenObjects(Parser(jsonStr).run())
 }

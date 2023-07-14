@@ -5,6 +5,7 @@ import api.generic.GenericObject
 import api.serializers.NestedObjectSerializer
 import api.serializers.UnknownUserSerializer
 import kotlinx.serialization.json.Json
+import kotlin.random.Random
 
 
 class Parser(str: String) {
@@ -31,10 +32,19 @@ class Parser(str: String) {
     }
 
     private fun checkType(value: Any): String {
-        return when (value.toString().toDoubleOrNull()) {
-            null -> "String"
+        if (value.toString() == "null") return "String?"
+
+        val type: String = when (value.toString().toIntOrNull()) {
+            null -> when(value.toString().toDoubleOrNull()) {
+                null -> when(value.toString().toBooleanStrictOrNull()) {
+                    true, false -> "Boolean"
+                    null -> "String"
+                }
+                else -> "Double"
+            }
             else -> "Int"
         }
+        return type
     }
 
     private fun checkValidity(genObjs: MutableList<GenericObject>) {
@@ -82,7 +92,9 @@ class Parser(str: String) {
 
         when (sampleAttribute.type) {
             "String" -> resultAttribute.value = "empty"
-            "Int" -> resultAttribute.value = (0..8192).random()
+            "Int" -> resultAttribute.value = Random.nextInt(0, 8192)
+            "Double" -> resultAttribute.value = Random.nextDouble(0.0, 10000.0)
+            "Boolean" -> resultAttribute.value = Random.nextBoolean()
             "GenericObject" -> {
                 resultAttribute.value = GenericObject(sampleAttribute.name)
 
@@ -143,23 +155,6 @@ class Parser(str: String) {
     }
 }
 
-
-//fun main() {
-//    /*
-//    TESTS:
-//        "users": [{"id":15,"name":"Andrey","Country": "Russia"}, {"id": 22, "name": "Mikhail", "age": 51, "address":  {"st.": "Lenina", "dom":  "55A"}}]
-//        "users": [{"id":15,"name":"Andrey","Country": "Russia"}, {"id": 22, "name": "Mikhail", "age": 51, "address":  {"st.": "Lenina", "dom":  "55A"}}, {"id": 58, "vuz": "BMSTU"}]
-//        "users": [{"id":15,"name":"Andrey","Country": "Russia"}, {"id": 22,"name": "Mikhail", "age": 51, "address": {"st.": "Lenina", "dom":  {"first": "55A", "second": "99G"}}}, {"id": 58, "vuz": "BMSTU"}] // FOR RECURSIVE
-//
-//        "users": [{"id":15,"name":"Andrey","ADDRESS": {"country": "Russia", "city": "moscow", "rayon": "SVAO", "dom": 91}}, {"id": 22, "name": "Mikhail", "age": 51, "address":  {"st.": "Lenina", "dom":  "55A"}}, {"id": 58, "vuz": "BMSTU"}]
-//    */
-//    val r = Reader()
-//    val jsonStr = r.readFile("jsonData/file1.json")
-//    val parser = Parser(jsonStr)
-//
-//    printGenObjects(parser.run())
-//}
-
 //// TODO: функция для вывода, удалить
 //fun printGenObjects(genObjs: MutableList<GenericObject>) {
 //    for (i in 0 until genObjs.size) {
@@ -170,7 +165,7 @@ class Parser(str: String) {
 //                println("Nested Object with name ${it.name} \n{")
 //                val nested = it.value as GenericObject
 //                for (elem in nested.getAttributes())
-//                    println("${elem.name} ${elem.type} ${elem.value}")
+//                    println("\t${elem.name} ${elem.type} ${elem.value}")
 //                println("}\nEND of Nested Object")
 //            }
 //        }
