@@ -1,10 +1,14 @@
 package api.parser
 
 import api.generic.GenericAttribute
+import api.generic.GenericAttributeList
 import api.generic.GenericObject
+import api.models.UnknownUser
 import api.serializers.NestedObjectSerializer
 import api.serializers.UnknownUserSerializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonArray
 import kotlin.random.Random
 
 
@@ -32,7 +36,16 @@ class Parser(str: String) {
     }
 
     private fun checkType(value: Any): String {
-        if (value.toString() == "null") return "String?"
+        if (value.toString() == "null")
+            return "nullable"
+
+        if (value::class.simpleName == "JsonObject")
+            return "GenericObject?"
+
+        if (value::class.simpleName == "JsonArray")  {
+            val temp = findTypeOfNullListElems(value as JsonElement)
+            return "List<$temp?>"
+        }
 
         val type: String = when (value.toString().toIntOrNull()) {
             null -> when(value.toString().toDoubleOrNull()) {
@@ -44,7 +57,24 @@ class Parser(str: String) {
             }
             else -> "Int"
         }
-        return type
+        return "$type?"
+    }
+
+    private fun findTypeOfNullListElems(value: JsonElement): String {
+        for (elem in value.jsonArray)
+            if (elem.toString() != "null")
+                return checkType(elem.toString())
+
+        return "String?"
+    }
+
+    private fun whichNullableType(allObjs: List<UnknownUser>, fieldName: String): String {
+        for (obj in allObjs)
+            for (entry in obj.details.entries)
+                if ((entry.key == fieldName) && (entry.value.toString() != "null"))
+                    return checkType(entry.value)
+
+        return "String?"
     }
 
     private fun checkValidity(genObjs: MutableList<GenericObject>) {
@@ -91,22 +121,21 @@ class Parser(str: String) {
         val resultAttribute = GenericAttribute(name = sampleAttribute.name, type = sampleAttribute.type, value = null)
 
         when (sampleAttribute.type) {
-            "String" -> resultAttribute.value = "empty"
-            "Int" -> resultAttribute.value = Random.nextInt(0, 8192)
-            "Double" -> resultAttribute.value = Random.nextDouble(0.0, 10000.0)
-            "Boolean" -> resultAttribute.value = Random.nextBoolean()
-            "GenericObject" -> {
+            "String?" -> resultAttribute.value = "empty"
+            "Int?" -> resultAttribute.value = Random.nextInt(0, 8192)
+            "Double?" -> resultAttribute.value = Random.nextDouble(0.0, 10000.0)
+            "Boolean?" -> resultAttribute.value = Random.nextBoolean()
+            "GenericObject?" -> {
                 resultAttribute.value = GenericObject(sampleAttribute.name)
 
                 for (attr in (sampleAttribute.value as GenericObject).getAttributes())
                     (resultAttribute.value as? GenericObject)?.addAttribute(attr)
 
-//                (resultAttribute.value as? GenericObject)?.addAttribute(
-//                    GenericAttribute(name = "copied", type = "Boolean", value = true))
-//            resultAttribute.value = GenericObject("Empty")
-//            ВМЕСТО ПЯТИ СТРОК ВЫШЕ (КОПИРОВАНИЕ) МОЖНО СОЗДАТЬ ПУСТОЙ GENERIC OBJECT ???
             }
         }
+
+        if (sampleAttribute.type.startsWith("List"))
+            resultAttribute.value = emptyList<Any>()
 
         return resultAttribute
     }
@@ -125,14 +154,22 @@ class Parser(str: String) {
             genObj.addAttribute(idAttrib)
 
             for (entry in obj.details.entries) {
-                var type: String? = entry.value::class.simpleName
+                var type: String = checkType(entry.value)
+                var listAttributes = GenericAttributeList(entry.key, type)
 
-                when (type) {
-                    "JsonObject" -> parseNested(genObj, entry.key, entry.value.toString())
-                    else -> type = checkType(entry.value)
+                if (type == "GenericObject?")
+                        parseNested(objs, genObj, entry.key, entry.value.toString())
+                else if (type.startsWith("List"))
+                    listAttributes = createAttrsList(entry.key, entry.value)
+                else if (type == "nullable") {
+                    type = whichNullableType(objs, entry.key)
+                    if (type == "GenericObject?")
+                        println("$type ")
                 }
-
-                genObj.addAttribute(GenericAttribute(name = entry.key, type = type, value = entry.value))
+                if (type.startsWith("List"))
+                    genObj.addAttribute(listAttributes as GenericAttribute)
+                else
+                    genObj.addAttribute(GenericAttribute(name = entry.key, type = type, value = entry.value))
             }
             genObjs.add(genObj)
         }
@@ -140,18 +177,37 @@ class Parser(str: String) {
         return genObjs
     }
 
-    private fun parseNested(genObj: GenericObject, fieldName: String, fieldValue: String) {
+    private fun createAttrsList(attrName: String, value: JsonElement): GenericAttributeList {
+        val type = findTypeOfNullListElems(value)
+
+        for (elem in value.jsonArray)
+            if (elem.toString() != "null" &&  checkType(elem.toString()) !in type) {
+                error("Field has list value with different types of elements")
+            }
+
+        val attrsList = GenericAttributeList(name = attrName, type = "List<$type>")
+        for (elem in value.jsonArray)
+            attrsList.appendValue(elem.toString())
+
+        return attrsList
+    }
+
+    private fun parseNested(allObjs: List<UnknownUser>, genObj: GenericObject, fieldName: String, fieldValue: String) {
         // val nestedObj = NestedObject(element, obj.details[element] as JsonObject)
         val str = fieldName + fieldValue
         val nestedObj = Json.decodeFromString(
             NestedObjectSerializer, string = str) // string = nestedObj.details.toString()
 
         val nestedGenObj = GenericObject(nestedObj.className)
-        for (elem in nestedObj.details.keys)
-            nestedGenObj.addAttribute(GenericAttribute(
-                name = elem, type = checkType(nestedObj.details[elem].toString()), value = nestedObj.details[elem]))
+        for (elem in nestedObj.details.keys) {
+            var type = checkType(nestedObj.details[elem].toString())
+            if (type == "nullable") type = whichNullableType(allObjs, elem)
 
-        genObj.addAttribute(GenericAttribute(name = nestedObj.className, type = "GenericObject", value = nestedGenObj))
+            nestedGenObj.addAttribute(GenericAttribute(
+                name = elem, type = type, value = nestedObj.details[elem]))
+        }
+
+        genObj.addAttribute(GenericAttribute(name = nestedObj.className, type = "GenericObject?", value = nestedGenObj))
     }
 }
 
@@ -160,14 +216,6 @@ class Parser(str: String) {
 //    for (i in 0 until genObjs.size) {
 //        (genObjs[i].getAttributes()).forEach {
 //            println("NAME=${it.name} TYPE=${it.type} VALUE=${it.value} ")
-//
-//            if (it.type == "GenericObject") {
-//                println("Nested Object with name ${it.name} \n{")
-//                val nested = it.value as GenericObject
-//                for (elem in nested.getAttributes())
-//                    println("\t${elem.name} ${elem.type} ${elem.value}")
-//                println("}\nEND of Nested Object")
-//            }
 //        }
 //        println()
 //    }

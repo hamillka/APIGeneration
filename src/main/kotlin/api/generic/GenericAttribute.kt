@@ -24,7 +24,7 @@ open class GenericAttribute(name: String, type: String, value: Any?) {
 
     override fun toString(): String {
         when(_type) {
-            "GenericObject" -> { return "val $_name: ${(_value as GenericObject).className}" }
+            "GenericObject?" -> { return "val $_name: ${(_value as GenericObject).className}?" }
             else -> { return "val $_name: $_type" }
         }
     }

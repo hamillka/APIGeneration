@@ -50,12 +50,12 @@ class GenericObject(className: String) {
         if (isSerializable) res += "@Serializable\n"
         res += "data class $_className("
         _attributes.forEach {
-            res += "${it.toString()}, "
+            res += "$it, "
         }
         if (_attributes.isNotEmpty()) res = res.slice(0..(res.length - 3))
         res += ")\n\n"
         _attributes.forEach {
-            if (it.type == "GenericObject") {
+            if (it.type == "GenericObject?") {
                 res += (it.value as GenericObject).toStringDataClass()
             }
         }
@@ -76,7 +76,7 @@ class GenericObject(className: String) {
             }
             else {
                 when (it.type) {
-                    "GenericObject" -> { res += (it.value as GenericObject).toString() }
+                    "GenericObject?" -> { res += (it.value as GenericObject).toString() }
                     else -> { res += "${it.value}" }
                 }
             }

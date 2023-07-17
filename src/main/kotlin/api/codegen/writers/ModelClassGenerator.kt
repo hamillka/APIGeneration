@@ -27,7 +27,7 @@ class ModelClassGenerator(pathToSave: String, objects: MutableList<GenericObject
     private fun getStorage(): String {
         var res: String = "val ${_objects[0].className.lowercase()}Storage = listOf(\n"
         _objects.forEach {
-            res += it.toString() + ",\n"
+            res += "$it,\n"
         }
         res += ")\n"
         return res

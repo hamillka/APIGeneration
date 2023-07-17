@@ -16,8 +16,8 @@ class GenericAttributeList(name: String, type: String, value: MutableList<Any?>?
 
     override fun toString(): String {
         when(type) {
-            "GenericObject" -> {
-                if (_value.isNotEmpty()) return "val $name: List<${(_value[0] as GenericObject).className}>"
+            "GenericObject?" -> {
+                if (_value.isNotEmpty()) return "val $name: List<${(_value[0] as GenericObject).className}?>"
                 return "val: $name: List<Any?>?"
             }
             else -> { return "val $name: List<$type>" }
