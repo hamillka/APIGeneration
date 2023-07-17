@@ -134,8 +134,10 @@ class Parser(str: String) {
             }
         }
 
-        if (sampleAttribute.type.startsWith("List"))
-            resultAttribute.value = emptyList<Any>()
+        if (sampleAttribute.type.startsWith("List")) {
+            resultAttribute.value = "emptyList()" // emptyList<Any>()
+//            println("AAAAAAA ${resultAttribute.value}")
+        }
 
         return resultAttribute
     }
