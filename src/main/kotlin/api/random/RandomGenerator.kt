@@ -29,8 +29,9 @@ class RandomGenerator() {
         return seed.toInt()
     }
 
-    fun nextIntIn(low: Int, up: Int): Int {
-        return low + nextInt() % (up - low)
+    fun nextInt(low: Int, up: Int): Int {
+//        [low, up)
+        return low + nextInt().mod(up - low)
     }
 
     fun nextChar(): Char {
@@ -45,12 +46,21 @@ class RandomGenerator() {
         return res
     }
 
-    fun nextDoubleIn(low: Double, up: Double): Double {
-        // Should be checked
-        return low + (nextInt().toDouble() / Int.MAX_VALUE) * (up - low)
+    fun nextDouble(low: Double, up: Double): Double {
+        val k = (nextInt().toDouble() / Int.MAX_VALUE + 1) / 2
+        return low + k * (up - low)
     }
 
     fun nextBoolean(): Boolean {
         return nextInt() % 2 == 1
+    }
+
+    fun nextString(minLen: Int, maxLen: Int): String {
+        val len = nextInt(minLen, maxLen)
+        var res = ""
+        for (i in 1..len) {
+            res += nextAlpha()
+        }
+        return res
     }
 }
