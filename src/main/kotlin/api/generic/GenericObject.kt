@@ -1,5 +1,7 @@
 package api.generic
 
+import kotlinx.serialization.json.JsonNull
+
 class GenericObject(className: String) {
     private var _attributes: MutableList<GenericAttribute> = mutableListOf()
     private var _className: String = className
@@ -76,7 +78,7 @@ class GenericObject(className: String) {
             }
             else {
                 when (it.type) {
-                    "GenericObject?" -> { res += (it.value as GenericObject).toString() }
+                    "GenericObject?" -> { res += if (it.value !is JsonNull) (it.value as GenericObject).toString() else "null" }
                     else -> { res += "${it.value}" }
                 }
             }
