@@ -14,6 +14,7 @@ import kotlin.random.Random
 
 class Parser(str: String) {
     private var _jsonStr: String = str
+    private lateinit var _allObjs: List<UnknownUser>
 
     fun run(): MutableList<GenericObject> {
         val (index, className) = getTableName()
@@ -44,7 +45,7 @@ class Parser(str: String) {
 
         if (value::class.simpleName == "JsonArray")  {
             val temp = findTypeOfNullListElems(value as JsonElement)
-            return "List<$temp?>"
+            return "List<$temp>"
         }
 
         val type: String = when (value.toString().toIntOrNull()) {
@@ -68,8 +69,8 @@ class Parser(str: String) {
         return "String?"
     }
 
-    private fun whichNullableType(allObjs: List<UnknownUser>, fieldName: String): String {
-        for (obj in allObjs)
+    private fun whichNullableType(fieldName: String): String {
+        for (obj in _allObjs)
             for (entry in obj.details.entries)
                 if ((entry.key == fieldName) && (entry.value.toString() != "null"))
                     return checkType(entry.value)
@@ -118,6 +119,9 @@ class Parser(str: String) {
     }
 
     private fun createDefaultAttribute(sampleAttribute: GenericAttribute): GenericAttribute {
+        if (sampleAttribute is GenericAttributeList)
+            return createDefaultAttributeList(sampleAttribute)
+
         val resultAttribute = GenericAttribute(name = sampleAttribute.name, type = sampleAttribute.type, value = null)
 
         when (sampleAttribute.type) {
@@ -134,23 +138,27 @@ class Parser(str: String) {
             }
         }
 
-        if (sampleAttribute.type.startsWith("List")) {
-            resultAttribute.value = "emptyList()" // emptyList<Any>()
-//            println("AAAAAAA ${resultAttribute.value}")
-        }
-
         return resultAttribute
+    }
+
+    private fun createDefaultAttributeList(sampleAttribute: GenericAttribute): GenericAttributeList {
+        val attrList = GenericAttributeList(name = sampleAttribute.name, type = sampleAttribute.type,
+            value = mutableListOf())
+        if (sampleAttribute.type == "nullable") {
+            attrList.type = "String?"
+        }
+        return attrList
     }
 
     private fun parse(jsonStr: String, className: String): MutableList<GenericObject> {
         val genObjs = mutableListOf<GenericObject>()
 
-        val objs = Json.decodeFromString(
+        _allObjs = Json.decodeFromString(
             UnknownUserSerializer,
             string = jsonStr,
         )
 
-        for (obj in objs) {
+        for (obj in _allObjs) {
             val genObj = GenericObject(className)
             val idAttrib = GenericAttribute(name = "id", type = "Int", value = obj.id)
             genObj.addAttribute(idAttrib)
@@ -160,16 +168,14 @@ class Parser(str: String) {
                 var listAttributes = GenericAttributeList(entry.key, type)
 
                 if (type == "GenericObject?")
-                        parseNested(objs, genObj, entry.key, entry.value.toString())
+                        parseNested(genObj, entry.key, entry.value.toString())
                 else if (type.startsWith("List"))
                     listAttributes = createAttrsList(entry.key, entry.value)
-                else if (type == "nullable") {
-                    type = whichNullableType(objs, entry.key)
-                    if (type == "GenericObject?")
-                        println("$type ")
-                }
+                else if (type == "nullable")
+                    type = whichNullableType(entry.key)
+
                 if (type.startsWith("List"))
-                    genObj.addAttribute(listAttributes as GenericAttribute)
+                    genObj.addAttribute(listAttributes)
                 else
                     genObj.addAttribute(GenericAttribute(name = entry.key, type = type, value = entry.value))
             }
@@ -187,14 +193,14 @@ class Parser(str: String) {
                 error("Field has list value with different types of elements")
             }
 
-        val attrsList = GenericAttributeList(name = attrName, type = "List<$type>")
+        val attrsList = GenericAttributeList(name = attrName, type = type)
         for (elem in value.jsonArray)
             attrsList.appendValue(elem.toString())
 
         return attrsList
     }
 
-    private fun parseNested(allObjs: List<UnknownUser>, genObj: GenericObject, fieldName: String, fieldValue: String) {
+    private fun parseNested(genObj: GenericObject, fieldName: String, fieldValue: String) {
         // val nestedObj = NestedObject(element, obj.details[element] as JsonObject)
         val str = fieldName + fieldValue
         val nestedObj = Json.decodeFromString(
@@ -203,7 +209,7 @@ class Parser(str: String) {
         val nestedGenObj = GenericObject(nestedObj.className)
         for (elem in nestedObj.details.keys) {
             var type = checkType(nestedObj.details[elem].toString())
-            if (type == "nullable") type = whichNullableType(allObjs, elem)
+            if (type == "nullable") type = whichNullableType(elem)
 
             nestedGenObj.addAttribute(GenericAttribute(
                 name = elem, type = type, value = nestedObj.details[elem]))
