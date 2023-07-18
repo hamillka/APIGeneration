@@ -35,7 +35,7 @@ class RandomGenerator() {
     }
 
     fun nextChar(): Char {
-        return nextInt().mod(256).toChar()
+        return nextInt().mod(65536).toChar()
     }
 
     fun nextAlpha(): Char {
