@@ -4,7 +4,7 @@ import api.generic.GenericAttribute
 import api.generic.GenericAttributeList
 import api.generic.GenericObject
 
-class RandomObjectCreator(seed: Int? = null) {
+class RandomObjectCreator(seed: String? = null) {
     val _random: RandomGenerator
     init {
         _random = if (seed != null) RandomGenerator(seed) else RandomGenerator()
@@ -18,7 +18,7 @@ class RandomObjectCreator(seed: Int? = null) {
                     value = createObject(baseValue as GenericObject)
                 } else { value = null }
             }
-            "String?" -> { value = _random.nextString(3, 10) }
+            "String?" -> { value = "\"${_random.nextString(3, 10)}\"" }
             "Int", "Int?" -> { value = _random.nextInt() }
             "Double?" -> { value = _random.nextDouble(-1000.0, 1000.0) }
             "Boolean?" -> { value = _random.nextBoolean() }

@@ -3,14 +3,39 @@ package api
 import api.codegen.KTORCodeGen
 import api.parser.Parser
 import api.parser.Reader
+import api.random.RandomObjectCreator
+import java.io.File
 
-fun main() {
-    val r = Reader()
-    val jsonStr = r.javaClass.getResource("/tests/test2.json")?.let { r.readFile(it.file) }
-    val codegen = KTORCodeGen("./test")
-    if (jsonStr != null) codegen.generateCode(Parser(jsonStr.toString()).run())
-    else throw NullPointerException("Unexisting file")
+fun main(args: Array<String>) {
+    var filename: String
+    var repeats: Int = 0
+    var seed: String? = null
+    when (args.size)
+    {
+        0 -> { throw Exception("Too less arguments. JSON-Filename should be") }
+        1 -> {
+            filename = args[0]
+        }
+        2 -> {
+            filename = args[0]
+            repeats = args[1].toInt()
+        }
+        3 -> {
+            filename = args[0]
+            repeats = args[1].toInt()
+            seed = args[2]
+        }
+        else -> { throw Exception("Too much arguments") }
+    }
+    if (!File(filename).exists()) {
+        throw Exception("Unexisting file")
+    }
 
-//    val jsonStr = r.readFile("src/main/resources/tests/file1.json")
-//    printGenObjects(Parser(jsonStr).run())
+    val jsonStr: String = Reader().readFile(filename)
+    val objects = Parser(jsonStr).run()
+    objects += RandomObjectCreator(seed).createObjects(objects[0], repeats)
+
+    val codegen = KTORCodeGen("./autogen")
+    val res = codegen.generateCode(objects)
+    if (!res) { throw Exception("Something go wrong") }
 }
