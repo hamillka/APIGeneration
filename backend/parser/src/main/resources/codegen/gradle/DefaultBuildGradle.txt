@@ -1,0 +1,49 @@
+val ktor_version: String by project
+val kotlin_version: String by project
+val logback_version: String by project
+
+plugins {
+    kotlin("jvm") version "1.9.0"
+    id("io.ktor.plugin") version "2.3.2"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.0"
+}
+
+group = "ktorAutogen"
+version = "0.0.1"
+application {
+    mainClass.set("ktorAutogen.ApplicationKt")
+
+    val isDevelopment: Boolean = project.ext.has("development")
+    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("io.ktor:ktor-server-core-jvm:2.3.2")
+    implementation("io.ktor:ktor-server-content-negotiation-jvm:2.3.2")
+    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:2.3.2")
+    implementation("io.ktor:ktor-server-netty-jvm:2.3.2")
+    implementation("ch.qos.logback:logback-classic:1.2.11")
+    testImplementation("io.ktor:ktor-server-tests-jvm:2.3.2")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.0")
+}
+
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = "ktorAutogen.ApplicationKt"
+    }
+
+    // To avoid the duplicate handling strategy error
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // To add all of the dependencies
+    from(sourceSets.main.get().output)
+
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+    })
+}

@@ -18,7 +18,8 @@ abstract class AbstractClassGenerator(className: String, pathToSave: String) {
     val dst
         get() = _dstFile
 
-    abstract var _path: String
+    abstract var _codePath: String
+    abstract var _projectPath: String
 
     private val _replacements: LinkedHashMap<String, String> = LinkedHashMap()
     val replacements
@@ -41,11 +42,11 @@ abstract class AbstractClassGenerator(className: String, pathToSave: String) {
     }
 
     protected fun getSource(): String {
-        return this.javaClass.getResourceAsStream("/codegen$_path/Default$className.txt").reader().readText()
+        return this.javaClass.getResourceAsStream("/codegen$_codePath/Default$className.txt").reader().readText()
     }
 
-    protected fun getDestinationFile(pathToSave: String): File {
-        val dirPath: Path = Paths.get(pathToSave, _path)
+    protected open fun getDestinationFile(pathToSave: String): File {
+        val dirPath: Path = Paths.get(pathToSave, _projectPath, _codePath)
         if (!Files.isDirectory(dirPath)) {
             dirPath.toFile().mkdirs()
         }

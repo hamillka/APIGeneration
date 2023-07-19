@@ -4,7 +4,8 @@ import java.io.File
 
 class AppClassGenerator(pathToSave: String) : AbstractClassGenerator("Application", pathToSave) {
 
-    override var _path: String = ""
+    override var _codePath: String = ""
+    override var _projectPath: String = "src/main/kotlin"
     override val _srcData: String = getSource()
     override val _dstFile: File = getDestinationFile(pathToSave)
 

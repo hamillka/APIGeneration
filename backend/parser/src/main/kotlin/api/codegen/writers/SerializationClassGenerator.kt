@@ -4,7 +4,8 @@ import java.io.File
 
 class SerializationClassGenerator(pathToSave: String) : AbstractClassGenerator("Serialization", pathToSave) {
 
-    override var _path: String = "/plugins"
+    override var _codePath: String = "/plugins"
+    override var _projectPath: String = "src/main/kotlin"
     override val _srcData: String = getSource()
     override val _dstFile: File = getDestinationFile(pathToSave)
 
