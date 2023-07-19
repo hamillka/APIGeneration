@@ -6,7 +6,7 @@ import java.io.File
 class ModelClassGenerator(pathToSave: String, objects: MutableList<GenericObject>) : AbstractClassGenerator("Model", pathToSave) {
 
     override var _path: String = "/models"
-    override val _srcFile: File = getSourceFile()
+    override val _srcData: String = getSource()
     override val _dstFile: File = getDestinationFile(pathToSave)
     val _objects: MutableList<GenericObject> = objects
 

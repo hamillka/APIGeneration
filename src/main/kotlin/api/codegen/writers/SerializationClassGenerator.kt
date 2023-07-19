@@ -5,7 +5,7 @@ import java.io.File
 class SerializationClassGenerator(pathToSave: String) : AbstractClassGenerator("Serialization", pathToSave) {
 
     override var _path: String = "/plugins"
-    override val _srcFile: File = getSourceFile()
+    override val _srcData: String = getSource()
     override val _dstFile: File = getDestinationFile(pathToSave)
 
     override fun setReplacements(repl: LinkedHashMap<String, String>?) {

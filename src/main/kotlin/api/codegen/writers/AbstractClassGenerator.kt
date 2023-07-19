@@ -10,9 +10,9 @@ abstract class AbstractClassGenerator(className: String, pathToSave: String) {
     val className
         get() = _className
 
-    abstract val _srcFile: File
+    abstract val _srcData: String
     val src
-        get() = _srcFile
+        get() = _srcData
 
     abstract val _dstFile: File
     val dst
@@ -33,17 +33,15 @@ abstract class AbstractClassGenerator(className: String, pathToSave: String) {
 
     private fun writeReplacedContent() {
         dst.writeText("")
-        src.forEachLine {
-            var line = it
-            for (key in replacements.keys) {
-                line = line.replace(key, replacements.getValue(key))
-            }
-            dst.appendText(line + "\n")
+        var content = src
+        for (key in replacements.keys) {
+            content = content.replace(key, replacements.getValue(key))
         }
+        dst.appendText(content)
     }
 
-    protected fun getSourceFile(): File {
-        return File(this.javaClass.getResource("/codegen$_path/Default$className.txt").file)
+    protected fun getSource(): String {
+        return this.javaClass.getResourceAsStream("/codegen$_path/Default$className.txt").reader().readText()
     }
 
     protected fun getDestinationFile(pathToSave: String): File {
