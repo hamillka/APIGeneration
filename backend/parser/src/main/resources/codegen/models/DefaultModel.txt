@@ -1,0 +1,6 @@
+package <<PACKAGE>>.models
+
+import kotlinx.serialization.Serializable
+
+<<DATACLASSES>>
+<<STORAGE>>
