@@ -40,19 +40,19 @@ export default {
     },
     executeCommand() {
       if ((this.file !== '') && (this.amount === 0) && (this.seed === "")) {
-        const socket = new WebSocket("ws://localhost:3000/oneparam");
+        const socket = new WebSocket("ws://localhost:3030/oneparam");
         socket.onopen = () => {
           socket.send(this.file["name"])
         }
       }
       else if ((this.file !== '') && (this.amount !== 0) && (this.seed === "")) {
-        const socket = new WebSocket("ws://localhost:3000/twoparams");
+        const socket = new WebSocket("ws://localhost:3030/twoparams");
         socket.onopen = () => {
           socket.send(this.file["name"] + ' ' + this.amount)
         }
       }
       else if ((this.file !== '') && (this.amount !== 0) && (this.seed !== "")) {
-        const socket = new WebSocket("ws://localhost:3000/threeparams");
+        const socket = new WebSocket("ws://localhost:3030/threeparams");
         socket.onopen = () => {
           socket.send(this.file["name"] + ' ' + this.amount + ' ' + this.seed)
         }
