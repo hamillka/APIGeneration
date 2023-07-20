@@ -5,6 +5,8 @@ import api.parser.Parser
 import api.parser.Reader
 import api.random.RandomObjectCreator
 import java.io.File
+import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 fun main(args: Array<String>) {
     var filename: String
@@ -38,4 +40,10 @@ fun main(args: Array<String>) {
     val codegen = KTORCodeGen("./autogen")
     val res = codegen.generateCode(objects)
     if (!res) { throw Exception("Something go wrong") }
+
+    buildJar()
+}
+
+fun buildJar() {
+    Runtime.getRuntime().exec("cmd /c cd autogen & gradle jar & cd build/libs & echo java -jar ktorAutogen-0.0.1.jar > run.bat").waitFor()
 }
