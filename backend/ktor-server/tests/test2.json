@@ -13,7 +13,7 @@
       "property":
       {
         "vehicle": "Audi",
-        "jets": "Superjet-3000"
+        "money": "$50k"
       }
     },
     {
@@ -32,8 +32,8 @@
       "table": [null, null, true, false, null, true],
       "property":
       {
-        "vehicles": ["Mazda", "Toyota"],
-        "jets": ["superjet", "boeing"]
+        "vehicle": "Mercedes",
+        "money": "$115k"
       }
     },
     {
