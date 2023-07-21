@@ -59,5 +59,17 @@ fun main(args: Array<String>) {
 }
 
 fun buildJar() {
-    Runtime.getRuntime().exec("cmd /c cd autogen & gradle jar & cd build/libs & echo java -jar ktorAutogen-0.0.1.jar > run.bat").waitFor()
+    val command = "cd autogen && gradle jar && cd build/libs && echo 'java -jar ktorAutogen-0.0.1.jar' > run.sh && chmod +x run.sh"
+
+    val process = ProcessBuilder()
+        .command("bash", "-c", command)
+        .redirectErrorStream(true)
+        .start()
+
+    val reader = BufferedReader(InputStreamReader(process.inputStream))
+    var line: String?
+    while (reader.readLine().also { line = it } != null) {
+        println(line)
+    }
+
 }
