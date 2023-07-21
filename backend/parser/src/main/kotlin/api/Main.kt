@@ -4,14 +4,15 @@ import api.codegen.KTORCodeGen
 import api.parser.Parser
 import api.parser.Reader
 import api.random.RandomObjectCreator
+import java.io.BufferedReader
 import java.io.File
-import java.io.IOException
-import java.util.concurrent.TimeUnit
+import java.io.InputStreamReader
 
 fun main(args: Array<String>) {
-    var filename: String
-    var repeats: Int = 0
+    val filename: String
+    var repeats = 0
     var seed: String? = null
+    var flag = false
     when (args.size)
     {
         0 -> { throw Exception("Too less arguments. JSON-Filename should be") }
@@ -20,12 +21,22 @@ fun main(args: Array<String>) {
         }
         2 -> {
             filename = args[0]
-            repeats = args[1].toInt()
+            repeats = if (args[1].last() == '@') {
+                flag = true
+                args[1].slice(0 until args[1].length - 1).toInt()
+            }
+            else
+                args[1].toInt()
         }
         3 -> {
             filename = args[0]
             repeats = args[1].toInt()
-            seed = args[2]
+            seed = if (args[2].last() == '@') {
+                flag = true
+                args[2].slice(0 until args[2].length - 1)
+            }
+            else
+                args[2]
         }
         else -> { throw Exception("Too much arguments") }
     }
@@ -34,8 +45,11 @@ fun main(args: Array<String>) {
     }
 
     val jsonStr: String = Reader().readFile(filename)
-    val objects = Parser(jsonStr).run()
-    objects += RandomObjectCreator(seed).createObjects(objects[0], repeats)
+    var objects = Parser(jsonStr).run()
+    if (flag)
+        objects = RandomObjectCreator(seed).createObjects(objects[0], repeats)
+    else
+        objects += RandomObjectCreator(seed).createObjects(objects[0], repeats)
 
     val codegen = KTORCodeGen("./autogen")
     val res = codegen.generateCode(objects)

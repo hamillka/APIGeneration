@@ -6,6 +6,7 @@ import api.generic.GenericObject
 import api.models.UnknownUser
 import api.serializers.NestedObjectSerializer
 import api.serializers.UnknownUserSerializer
+import io.github.serpro69.kfaker.faker
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonArray
@@ -126,16 +127,27 @@ class Parser(str: String) {
 
         when (sampleAttribute.type) {
             "String?" -> resultAttribute.value = "empty"
-            "Int?" -> resultAttribute.value = Random.nextInt(0, 8192)
-            "Double?" -> resultAttribute.value = Random.nextDouble(0.0, 10000.0)
+            "Int?" -> resultAttribute.value = Random.nextInt()
+            "Double?" -> resultAttribute.value = Random.nextDouble()
             "Boolean?" -> resultAttribute.value = Random.nextBoolean()
             "GenericObject?" -> {
                 resultAttribute.value = GenericObject(sampleAttribute.name)
 
                 for (attr in (sampleAttribute.value as GenericObject).getAttributes())
                     (resultAttribute.value as? GenericObject)?.addAttribute(attr)
-
             }
+        }
+
+        val faker = faker { }
+
+        resultAttribute.value = when (sampleAttribute.name.lowercase()) {
+            "name" -> "\"${faker.name.firstName()}\""
+            "surname" -> "\"${faker.name.lastName()}\""
+            "country" -> "\"${faker.address.country()}\""
+            "city" -> "\"${faker.address.city()}\""
+            "email" -> "\"${faker.internet.safeEmail()}\""
+            "phone" -> "\"${faker.phoneNumber.phoneNumber()}\""
+            else -> resultAttribute.value
         }
 
         return resultAttribute
@@ -216,15 +228,5 @@ class Parser(str: String) {
         }
 
         genObj.addAttribute(GenericAttribute(name = nestedObj.className, type = "GenericObject?", value = nestedGenObj))
-    }
-}
-
-//// TODO: функция для вывода, удалить
-fun printGenObjects(genObjs: MutableList<GenericObject>) {
-    for (i in 0 until genObjs.size) {
-        (genObjs[i].getAttributes()).forEach {
-            println("NAME=${it.name} TYPE=${it.type} VALUE=${it.value} ")
-        }
-        println()
     }
 }

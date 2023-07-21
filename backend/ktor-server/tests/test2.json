@@ -1,8 +1,8 @@
 {
-  "users": [
+  "users": 
+  [
     {
       "id": 15,
-      "name": null,
       "address":
       {
         "country": "Russia",
@@ -12,13 +12,13 @@
       },
       "property":
       {
-        "vehicle": "Audi",
-        "money": "$50k"
+        "vehicle": "Audi"
       }
     },
     {
       "id": 22,
       "name": "Mikhail",
+      "surname": "Yurchenko",
       "age": 51,
       "Student": false,
       "address":
@@ -32,9 +32,10 @@
       "table": [null, null, true, false, null, true],
       "property":
       {
-        "vehicle": "Mercedes",
-        "money": "$115k"
-      }
+        "vehicle": "Mercedes"
+      },
+      "phone": "7(999)123-15-15",
+      "email": "yurchmiha@gmail.com"
     },
     {
       "id": 777,

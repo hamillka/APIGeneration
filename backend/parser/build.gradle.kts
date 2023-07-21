@@ -15,7 +15,7 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     implementation("org.json:json:20230227")
-
+    implementation("io.github.serpro69:kotlin-faker:1.14.0-rc.2")
 }
 
 tasks.withType<Jar> {
@@ -23,10 +23,8 @@ tasks.withType<Jar> {
         attributes["Main-Class"] = "api.MainKt"
     }
 
-    // To avoid the duplicate handling strategy error
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-    // To add all of the dependencies
     from(sourceSets.main.get().output)
 
     dependsOn(configurations.runtimeClasspath)
