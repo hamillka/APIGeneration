@@ -48,7 +48,8 @@ suspend fun readAndRun(incoming: ReceiveChannel<Frame>, command: String) {
 fun run(command: String, data: String) {
     try {
         val process = ProcessBuilder()
-            .command("bash", "-c", "$command ./tests/$data")
+//            .command("bash", "-c", "$command ./tests/$data")
+            .command("cmd", "/c", "$command ./tests/$data")
             .redirectErrorStream(true)
             .start()
 

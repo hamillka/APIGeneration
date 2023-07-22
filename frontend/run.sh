@@ -1,1 +1,1 @@
-npm run build && serve -s dist
+serve -s dist

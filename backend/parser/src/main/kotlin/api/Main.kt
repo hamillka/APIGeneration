@@ -59,10 +59,12 @@ fun main(args: Array<String>) {
 }
 
 fun buildJar() {
-    val command = "cd autogen && gradle jar && cd build/libs && echo 'java -jar ktorAutogen-0.0.1.jar' > run.sh && chmod +x run.sh"
+//    val command = "cd autogen && gradle jar && cd build/libs && echo 'java -jar ktorAutogen-0.0.1.jar' > run.sh && chmod +x run.sh"
+    val command = "cd autogen && gradle jar && cd build/libs && echo java -jar ktorAutogen-0.0.1.jar > run.bat"
 
     val process = ProcessBuilder()
-        .command("bash", "-c", command)
+//        .command("bash", "-c", command)
+        .command("cmd", "/c", command)
         .redirectErrorStream(true)
         .start()
 

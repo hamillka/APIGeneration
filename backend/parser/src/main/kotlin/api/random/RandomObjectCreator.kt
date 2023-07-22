@@ -3,11 +3,26 @@ package api.random
 import api.generic.GenericAttribute
 import api.generic.GenericAttributeList
 import api.generic.GenericObject
+import io.github.serpro69.kfaker.faker
 
 class RandomObjectCreator(seed: String? = null) {
     val _random: RandomGenerator
+    val _faker = faker {  }
     init {
         _random = if (seed != null) RandomGenerator(seed) else RandomGenerator()
+    }
+
+    fun createFakedValue(attr: GenericAttribute): Any? {
+        val value = when (attr.name) {
+            "name" -> "\"${_faker.name.firstName()}\""
+            "surname" -> "\"${_faker.name.lastName()}\""
+            "country" -> "\"${_faker.address.country()}\""
+            "city" -> "\"${_faker.address.city()}\""
+            "email" -> "\"${_faker.internet.safeEmail()}\""
+            "phone" -> "\"${_faker.phoneNumber.phoneNumber()}\""
+            else -> createValue(attr.type, attr.value)
+        }
+        return value
     }
 
     fun createValue(type: String, baseValue: Any?): Any? {
@@ -28,7 +43,7 @@ class RandomObjectCreator(seed: String? = null) {
     }
 
     fun createAttribute(baseAttribute: GenericAttribute): GenericAttribute {
-        return GenericAttribute(baseAttribute.name, baseAttribute.type, createValue(baseAttribute.type, baseAttribute.value))
+        return GenericAttribute(baseAttribute.name, baseAttribute.type, createFakedValue(baseAttribute))
     }
 
     fun createAttributeList(baseAttribute: GenericAttributeList): GenericAttributeList {
